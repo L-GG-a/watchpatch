@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% block title %}添加监控 · WatchPatch{% endblock %}
+{% block content %}
+<a class="back-link" href="/">← 返回监控面板</a><div class="page-heading"><div><div class="eyebrow">NEW MONITOR / 新建任务</div><h1>添加网页监控</h1><p>输入需要关注的网页，WatchPatch 会为你记录后续变化。</p></div></div>
+<div class="form-layout"><form class="panel form-panel" method="post" action="/monitors">
+  <div class="form-section"><div class="section-number">01</div><div><h2>基础信息</h2><p>为任务起个好认的名字，填入完整网页地址。</p></div></div>
+  <label for="name">任务名称 <span class="required">*</span></label><input id="name" name="name" required maxlength="100" value="{{ values.get('name', '') }}" placeholder="例如：课程报名通知" aria-describedby="name-error"><small id="name-error" class="field-error">{{ errors.get('name','') }}</small>
+  <label for="url">网页地址 <span class="required">*</span></label><input id="url" name="url" type="url" required value="{{ values.get('url', '') }}" placeholder="https://example.com/notice" aria-describedby="url-error"><small id="url-error" class="field-error">{{ errors.get('url','') }}</small>
+  <div class="form-section second"><div class="section-number">02</div><div><h2>检查规则</h2><p>选择检查频率，按需填写关注的关键词。</p></div></div>
+  <label for="interval">检查间隔 <span class="required">*</span></label><div class="input-with-unit"><input id="interval" name="interval" type="number" min="5" required value="{{ values.get('interval',30) }}"><span>分钟</span></div><small class="field-error">{{ errors.get('interval','') }}</small><small class="hint">最短 5 分钟，建议从 30 或 60 分钟开始。</small>
+  <label for="keywords">关键词 <span class="optional">可选</span></label><input id="keywords" name="keywords" value="{{ values.get('keywords','') }}" placeholder="报名, 截止时间"><small class="hint">多个关键词用逗号分隔。只保存包含关键词的行及相邻内容。</small>
+  <label class="check-option"><input type="checkbox" name="check_now" value="true" {% if values.get('check_now') %}checked{% endif %}> 创建后立即检查并保存首次快照</label>
+  <div class="form-actions"><a class="button subtle" href="/">取消</a><button class="button primary" type="submit">创建监控 →</button></div>
+</form><aside class="help-panel"><div class="help-icon">✦</div><h3>接下来会发生什么？</h3><ol><li>任务保存在你的本机数据库中。</li><li>可以立即检查并保存初始内容。</li><li>网页变化时查看差异和历史。</li></ol><p>支持公开的静态 HTML 页面。需要登录或 JavaScript 渲染的页面暂不支持。</p></aside></div>
+{% endblock %}

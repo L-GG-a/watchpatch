@@ -1,0 +1,9 @@
+<div id="monitor-table" class="table-wrap">
+{% if monitors %}
+<table><thead><tr><th>监控任务</th><th>网页地址</th><th>状态</th><th>检查间隔</th><th>上次检查</th><th>操作</th></tr></thead><tbody>
+{% for monitor in monitors %}{% include 'partials/monitor_row.html' %}{% endfor %}
+</tbody></table>
+{% else %}
+<div class="empty"><div class="empty-icon">⌁</div><h3>{% if filter == 'changed' %}暂无变化任务{% elif filter == 'error' %}暂无失败任务{% else %}还没有监控任务{% endif %}</h3><p>{% if filter == 'all' %}添加第一个网页，开始记录它的变化。{% else %}切换到“全部”查看其他任务。{% endif %}</p>{% if filter == 'all' %}<a class="button primary" href="/monitors/new">添加监控</a>{% endif %}</div>
+{% endif %}
+</div>

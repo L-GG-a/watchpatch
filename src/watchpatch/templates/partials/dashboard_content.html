@@ -1,0 +1,12 @@
+{% if notice %}<div class="notice" role="status">{{ {'deleted':'监控及历史记录已删除。','checked':'已完成启用任务的检查。'}.get(notice, notice) }}</div>{% endif %}
+<section class="stats" aria-label="监控统计">
+  <div class="stat-card"><span class="stat-icon blue">▦</span><span class="stat-label">全部监控</span><strong>{{ stats.total }}</strong><small>当前任务总数</small></div>
+  <div class="stat-card"><span class="stat-icon green">◉</span><span class="stat-label">已启用</span><strong>{{ stats.active }}</strong><small>正在定时检查</small></div>
+  <div class="stat-card"><span class="stat-icon amber">⌁</span><span class="stat-label">24 小时变化</span><strong>{{ stats.changed }}</strong><small>新变化事件</small></div>
+  <div class="stat-card"><span class="stat-icon red">!</span><span class="stat-label">最近失败</span><strong>{{ stats.failed }}</strong><small>需要关注的任务</small></div>
+</section>
+<section class="panel">
+  <div class="panel-heading"><div><h2>监控任务</h2><p>掌握每个页面的最新状态</p></div><form method="post" action="/check-all" hx-post="/check-all" hx-target="#dashboard-content" hx-swap="outerHTML"><button class="button subtle" type="submit" {% if not stats.active %}disabled{% endif %}>↻ 立即检查全部</button></form></div>
+  <div class="filters" role="group" aria-label="筛选监控"><a href="/?filter=all" class="filter {% if filter == 'all' %}active{% endif %}" hx-get="/partials/monitor-table?filter=all" hx-target="#monitor-table" hx-swap="outerHTML" data-filter="all">全部</a><a href="/?filter=changed" class="filter {% if filter == 'changed' %}active{% endif %}" hx-get="/partials/monitor-table?filter=changed" hx-target="#monitor-table" hx-swap="outerHTML" data-filter="changed">只看有变化</a><a href="/?filter=error" class="filter {% if filter == 'error' %}active{% endif %}" hx-get="/partials/monitor-table?filter=error" hx-target="#monitor-table" hx-swap="outerHTML" data-filter="error">只看失败任务</a></div>
+  {% include 'partials/monitor_table.html' %}
+</section>

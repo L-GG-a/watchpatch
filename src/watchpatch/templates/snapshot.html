@@ -1,0 +1,3 @@
+{% extends 'base.html' %}
+{% block title %}快照 #{{ snapshot.id }} · WatchPatch{% endblock %}
+{% block content %}<a class="back-link" href="/monitors/{{ monitor.id }}">← 返回任务详情</a><div class="page-heading"><div><div class="eyebrow">SAVED CONTENT / 历史内容</div><h1>快照 #{{ snapshot.id }}</h1><p>{{ monitor.name }} · {{ snapshot.created_at|local_time }}</p></div></div><section class="panel snapshot-panel"><pre>{{ snapshot.content }}</pre></section>{% endblock %}

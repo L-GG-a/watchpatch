@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}WatchPatch{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', path='style.css') }}">
+  <script defer src="{{ url_for('static', path='htmx.min.js') }}"></script>
+  <script defer src="{{ url_for('static', path='app.js') }}"></script>
+</head>
+<body>
+  <div class="shell">
+    <aside class="sidebar">
+      <a class="brand" href="/"><span class="brand-mark">◈</span><span>WatchPatch<small>LOCAL MONITOR</small></span></a>
+      <nav aria-label="主导航">
+        <a href="/" class="nav-link {% if request.url.path == '/' %}selected{% endif %}"><span>▦</span> 监控面板</a>
+        <a href="/monitors/new" class="nav-link {% if request.url.path == '/monitors/new' %}selected{% endif %}"><span>＋</span> 添加监控</a>
+        <a href="/settings" class="nav-link {% if request.url.path == '/settings' %}selected{% endif %}"><span>⚙</span> 设置</a>
+      </nav>
+      <div class="sidebar-bottom"><span class="online-dot"></span> 仅本机运行 <small>127.0.0.1:8787</small></div>
+    </aside>
+    <div class="main-column">
+      <header class="topbar"><span>网页变化，一目了然</span><span class="topbar-right">● 本地监控运行中</span></header>
+      <main class="content">{% block content %}{% endblock %}</main>
+      <footer>WatchPatch · 您的数据保存在本机</footer>
+    </div>
+  </div>
+</body>
+</html>
