@@ -1,9 +1,15 @@
 import httpx
 import pytest
 
-from watchpatch.services.cleaner import filter_by_keyword, normalize_html
+from watchpatch.services.cleaner import extract_douyin_posts, filter_by_keyword, normalize_html
 from watchpatch.services.diff import make_diff
-from watchpatch.services.fetcher import FetchError, fetch_html, validate_url
+from watchpatch.services.fetcher import (
+    FetchError,
+    fetch_html,
+    fetch_page,
+    is_douyin_url,
+    validate_url,
+)
 from watchpatch.services.hasher import content_hash
 
 
@@ -27,6 +33,17 @@ def test_filter_by_keyword():
     assert filter_by_keyword(text, ["python"]) == "before\nPython job\nafter"
     assert filter_by_keyword(text, ["missing"]) is None
     assert filter_by_keyword(text, []) == text
+
+
+def test_douyin_posts_are_stable_links():
+    html = (
+        '<a href="/video/123?share=1">点赞 10</a>'
+        '<a href="https://www.douyin.com/note/456">笔记</a>'
+        '<a href="https://other.example/video/789">无关链接</a>'
+    )
+    assert extract_douyin_posts(html, "https://www.douyin.com/user/test") == (
+        "https://www.douyin.com/note/456\nhttps://www.douyin.com/video/123"
+    )
 
 
 def test_hash_is_stable():
@@ -102,3 +119,18 @@ async def test_empty_or_non_html_response(body, headers):
             "https://example.com",
             httpx.MockTransport(lambda _: httpx.Response(200, content=body, headers=headers)),
         )
+
+
+def test_douyin_host_match_is_exact_or_subdomain():
+    assert is_douyin_url("https://www.douyin.com/user/example")
+    assert is_douyin_url("https://douyin.com/user/example")
+    assert not is_douyin_url("https://douyin.com.evil.example/user/example")
+
+
+async def test_fetch_page_selects_renderer_for_douyin(monkeypatch):
+    async def rendered(url):
+        return f"<p>{url}</p>"
+
+    monkeypatch.setattr("watchpatch.services.browser_fetcher.fetch_rendered_html", rendered)
+    result = await fetch_page("https://www.douyin.com/user/example")
+    assert "www.douyin.com" in result

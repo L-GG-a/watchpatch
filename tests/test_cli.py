@@ -58,7 +58,7 @@ def test_check_all_only_enabled(runner, db, monkeypatch, args):
         urls.append(url)
         return "<p>content</p>"
 
-    monkeypatch.setattr("watchpatch.services.checker.fetch_html", fetch)
+    monkeypatch.setattr("watchpatch.services.checker.fetch_page", fetch)
     assert runner.invoke(app, args).exit_code == 0
     assert urls == ["https://enabled.example.com"]
 
@@ -89,7 +89,7 @@ def test_check_and_diff(runner, monkeypatch):
     async def fetch(_):
         return next(contents)
 
-    monkeypatch.setattr("watchpatch.services.checker.fetch_html", fetch)
+    monkeypatch.setattr("watchpatch.services.checker.fetch_page", fetch)
     monkeypatch.setattr("watchpatch.services.checker.notify", lambda *_: None)
     assert "首次快照已保存" in runner.invoke(app, ["check", "1"]).output
     assert "检测到变化" in runner.invoke(app, ["check", "1"]).output

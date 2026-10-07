@@ -7,9 +7,9 @@ from sqlmodel import select
 
 from watchpatch.database import Database, get_monitor, latest_snapshots
 from watchpatch.models import Event, Snapshot, utcnow
-from watchpatch.services.cleaner import filter_by_keyword, normalize_html
+from watchpatch.services.cleaner import extract_douyin_posts, filter_by_keyword, normalize_html
 from watchpatch.services.diff import make_diff
-from watchpatch.services.fetcher import FetchError, fetch_html
+from watchpatch.services.fetcher import FetchError, fetch_page, is_douyin_url
 from watchpatch.services.hasher import content_hash
 from watchpatch.services.notifier import notify
 
@@ -32,7 +32,7 @@ async def check_monitor(
     fetch: Callable[[str], Awaitable[str]] | None = None,
     send_notification: Callable[[str, str], None] | None = None,
 ) -> CheckResult:
-    fetch = fetch or fetch_html
+    fetch = fetch or fetch_page
     send_notification = send_notification or notify
     # Never hold a database transaction open while waiting for the network.
     with db.session() as session:
@@ -43,11 +43,27 @@ async def check_monitor(
     try:
         html = await fetch(url)
         try:
-            text = normalize_html(html)
+            if is_douyin_url(url):
+                text = extract_douyin_posts(html, url)
+                if not text:
+                    raise FetchError(
+                        "公开作品列表未能读取，可能需要登录、验证，或页面结构已变化；旧快照已保留。"
+                    )
+            else:
+                text = normalize_html(html)
         except Exception as exc:
+            if isinstance(exc, FetchError):
+                raise
             raise FetchError("网页文本解析失败，保留原有快照。") from exc
         if not text:
             raise FetchError("页面没有可读取文本，可能需要 JavaScript 渲染。")
+        if text.casefold().strip(". …\n\r\t") in {
+            "please wait",
+            "just a moment",
+            "请稍候",
+            "请稍等",
+        }:
+            raise FetchError("页面只返回等待占位内容，未保存快照；可能需要登录或网站限制了访问。")
         filtered = filter_by_keyword(text, keywords)
     except FetchError as exc:
         error = str(exc)

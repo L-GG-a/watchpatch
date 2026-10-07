@@ -30,7 +30,7 @@ def test_web_create_check_diff_pause_resume_delete(tmp_path, monkeypatch):
     async def fetch(_):
         return next(contents)
 
-    monkeypatch.setattr("watchpatch.services.checker.fetch_html", fetch)
+    monkeypatch.setattr("watchpatch.services.checker.fetch_page", fetch)
     monkeypatch.setattr("watchpatch.services.checker.notify", lambda *_: None)
     with client(tmp_path) as web:
         created = web.post(
@@ -99,7 +99,7 @@ def test_html_escapes_untrusted_snapshot_content(tmp_path, monkeypatch):
     async def fetch(_):
         return "<p>&lt;script&gt;alert(1)&lt;/script&gt;</p>"
 
-    monkeypatch.setattr("watchpatch.services.checker.fetch_html", fetch)
+    monkeypatch.setattr("watchpatch.services.checker.fetch_page", fetch)
     with client(tmp_path) as web:
         web.post(
             "/monitors",

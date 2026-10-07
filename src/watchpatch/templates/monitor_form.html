@@ -11,5 +11,5 @@
   <label for="keywords">关键词 <span class="optional">可选</span></label><input id="keywords" name="keywords" value="{{ values.get('keywords','') }}" placeholder="报名, 截止时间"><small class="hint">多个关键词用逗号分隔。只保存包含关键词的行及相邻内容。</small>
   <label class="check-option"><input type="checkbox" name="check_now" value="true" {% if values.get('check_now') %}checked{% endif %}> 创建后立即检查并保存首次快照</label>
   <div class="form-actions"><a class="button subtle" href="/">取消</a><button class="button primary" type="submit">创建监控 →</button></div>
-</form><aside class="help-panel"><div class="help-icon">✦</div><h3>接下来会发生什么？</h3><ol><li>任务保存在你的本机数据库中。</li><li>可以立即检查并保存初始内容。</li><li>网页变化时查看差异和历史。</li></ol><p>支持公开的静态 HTML 页面。需要登录或 JavaScript 渲染的页面暂不支持。</p></aside></div>
+</form><aside class="help-panel"><div class="help-icon">✦</div><h3>接下来会发生什么？</h3><ol><li>任务保存在你的本机数据库中。</li><li>可以立即检查并保存初始内容。</li><li>网页变化时查看差异和历史。</li></ol><p>普通页面直接读取 HTML。公开的抖音页面可选装浏览器渲染支持；需要登录、验证或受限的内容无法监控。</p></aside></div>
 {% endblock %}

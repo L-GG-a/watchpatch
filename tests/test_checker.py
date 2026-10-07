@@ -7,11 +7,9 @@ from watchpatch.services.checker import check_monitor
 from watchpatch.services.fetcher import FetchError
 
 
-def add_monitor(db, keywords=None):
+def add_monitor(db, keywords=None, url="https://example.com"):
     with db.session() as session:
-        monitor = Monitor(
-            name="课程", url="https://example.com", keywords=json.dumps(keywords or [])
-        )
+        monitor = Monitor(name="课程", url=url, keywords=json.dumps(keywords or []))
         session.add(monitor)
         session.commit()
         return monitor.id
@@ -90,6 +88,39 @@ async def test_empty_page_does_not_create_snapshot(db):
     assert result.status == "error"
     with db.session() as session:
         assert not session.exec(select(Snapshot)).all()
+
+
+async def test_wait_placeholder_does_not_create_snapshot(db):
+    monitor_id = add_monitor(db)
+
+    async def fetch(_):
+        return "<p>Please wait...</p><script>loadContent()</script>"
+
+    result = await check_monitor(db, monitor_id, fetch, lambda *_: None)
+    assert result.status == "error"
+    assert "等待占位内容" in result.message
+    with db.session() as session:
+        assert not session.exec(select(Snapshot)).all()
+
+
+async def test_douyin_requires_public_post_links(db):
+    monitor_id = add_monitor(db, url="https://www.douyin.com/user/test")
+
+    async def blocked(_):
+        return "<p>Please wait...</p>"
+
+    result = await check_monitor(db, monitor_id, blocked, lambda *_: None)
+    assert result.status == "error"
+    with db.session() as session:
+        assert not session.exec(select(Snapshot)).all()
+
+    async def public(_):
+        return '<a href="/video/123">浏览 10</a>'
+
+    result = await check_monitor(db, monitor_id, public, lambda *_: None)
+    assert result.status == "initial"
+    with db.session() as session:
+        assert session.exec(select(Snapshot)).one().content == "https://www.douyin.com/video/123"
 
 
 async def test_notification_failure_does_not_lose_change(db):

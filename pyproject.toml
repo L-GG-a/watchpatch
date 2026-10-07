@@ -25,6 +25,7 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = ["pytest>=8,<10", "pytest-asyncio>=0.24,<2", "pytest-cov>=5,<8", "ruff>=0.9,<1"]
+browser = ["playwright>=1.50,<2"]
 
 [project.scripts]
 watchpatch = "watchpatch.cli:main"

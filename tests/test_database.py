@@ -53,7 +53,7 @@ async def test_scheduler_checks_only_due_enabled_monitors(db, monkeypatch):
     async def fetch(_):
         return "<p>content</p>"
 
-    monkeypatch.setattr("watchpatch.services.checker.fetch_html", fetch)
+    monkeypatch.setattr("watchpatch.services.checker.fetch_page", fetch)
     results = []
     await check_due(db, results.append)
     assert [result.monitor_id for result in results] == [1, 4]
@@ -68,7 +68,7 @@ async def test_scheduler_runs_immediately_and_can_stop(db, monkeypatch):
     async def fetch(_):
         return "<p>scheduled content</p>"
 
-    monkeypatch.setattr("watchpatch.services.checker.fetch_html", fetch)
+    monkeypatch.setattr("watchpatch.services.checker.fetch_page", fetch)
     checked = asyncio.Event()
     task = asyncio.create_task(run_scheduler(db, lambda _: checked.set()))
     try:

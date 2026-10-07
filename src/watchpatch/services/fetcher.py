@@ -11,6 +11,21 @@ class FetchError(Exception):
     pass
 
 
+def is_douyin_url(url: str) -> bool:
+    host = (urlsplit(url).hostname or "").lower()
+    return host == "douyin.com" or host.endswith(".douyin.com")
+
+
+async def fetch_page(url: str) -> str:
+    """Use browser rendering for Douyin and static HTTP for ordinary pages."""
+    validate_url(url)
+    if is_douyin_url(url):
+        from watchpatch.services.browser_fetcher import fetch_rendered_html
+
+        return await fetch_rendered_html(url)
+    return await fetch_html(url)
+
+
 def validate_url(url: str) -> str:
     try:
         parsed = urlsplit(url)
